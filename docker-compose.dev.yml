@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: scorecard-server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - scorecard-data:/app/data
+    environment:
+      - PORT=3001
+      - DB_PATH=/app/data
+      - NODE_ENV=development
+    command: npm run dev
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client.dev
+    container_name: scorecard-client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_APP_NAME=${APP_NAME:-LevelTen}
+      - NODE_ENV=development
+    depends_on:
+      - server
+    command: npm start
+
+volumes:
+  scorecard-data:
+    # Persist data between container restarts

@@ -1,0 +1,16 @@
+FROM node:23-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+# Create data directory
+RUN mkdir -p /app/data && chmod 777 /app/data
+
+EXPOSE 3001
+
+CMD ["npm", "run", "dev"]
